@@ -2,29 +2,46 @@
 using FubuCore.Binding.InMemory;
 using FubuMVC.Core.Runtime;
 using FubuMVC.Core.UI.Security;
-using StructureMap.Configuration.DSL;
+using Castle.MicroKernel.Registration;
+using Castle.MicroKernel.SubSystems.Configuration;
 using HtmlTags.Conventions;
+using FubuMVC.Core.Http.AspNet;
+using System.Collections.Generic;
+using FubuCore.Logging;
 
 namespace WebApp.DependencyResolution
 {
-    public class FubuRegistry : Registry
+    public class FubuRegistry : IWindsorInstaller
     {
-        public FubuRegistry()
+        public void Install(Castle.Windsor.IWindsorContainer container, IConfigurationStore store)
         {
-            Scan(scan =>
-            {
-                scan.AssemblyContainingType<IFubuRequest>();
-                scan.AssemblyContainingType<ITypeResolver>();
-                scan.AssemblyContainingType<ITagGeneratorFactory>();
-                scan.AssemblyContainingType<IFieldAccessService>();
-
-                scan.WithDefaultConventions();
-                scan.LookForRegistries();
-            });
-
-            //seems like this should take care of itself, but it's not...
-            For<IServiceLocator>().Use<StructureMapServiceLocator>();
-            For<IBindingLogger>().Use<NulloBindingLogger>();
+            
+            container.Register(Classes
+                                .FromAssemblyContaining<IFubuRequest>()
+                                .Pick()
+                                .WithServiceDefaultInterfaces()
+                                .Configure(c => c.LifestyleTransient()),
+                               Classes
+                                .FromAssemblyContaining<ITypeResolver>()
+                                .Pick()
+                                .WithServiceDefaultInterfaces()
+                                .Configure(c => c.LifestyleTransient()),
+                               Classes
+                                .FromAssemblyContaining<ITagGeneratorFactory>()
+                                .Pick()
+                                .WithServiceDefaultInterfaces()
+                                .Unless(t => t == typeof(HtmlConventionLibrary))
+                                .Configure(c => c.LifestyleTransient()),
+                               Classes
+                                .FromAssemblyContaining<IFieldAccessService>()
+                                .Pick()
+                                .WithServiceDefaultInterfaces()
+                                .Configure(c => c.LifestyleTransient()),
+                               Component.For<IServiceLocator>().ImplementedBy<WindsorServiceLocator>().LifestyleTransient(),
+                               Component.For<AspNetCurrentHttpRequest>().ImplementedBy<AspNetCurrentHttpRequest>().LifestyleTransient().Named("AspNetCurrentHttpRequest"),
+                               Component.For<IEnumerable<ILogListener>>().Instance(new ILogListener[0]),
+                               Component.For<IEnumerable<ILogModifier>>().Instance(new ILogModifier[0])
+            );
         }
     }
 }
