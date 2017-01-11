@@ -3,7 +3,8 @@ using WebApp.Models;
 
 namespace WebApp.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController 
+        : Controller
     {
         public ActionResult Index()
         {
@@ -27,18 +28,9 @@ namespace WebApp.Controllers
 
                 TempData.Add("model", model);
                 TempData.Add("errors", ModelState);
-
-                return RedirectToAction("Index");
             }
 
-            return RedirectToAction("About");
-        }
-
-        public ActionResult About()
-        {
-            ViewBag.Message = "Your application description page.";
-
-            return View();
+            return RedirectToAction("Index");
         }
     }
 }
