@@ -7,7 +7,8 @@ using HtmlTags.Conventions;
 
 namespace WebApp.DependencyResolution
 {
-    public class FubuRegistry : Registry
+    public class FubuRegistry 
+        : Registry
     {
         public FubuRegistry()
         {
