@@ -16,41 +16,37 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using WebApp.App_Start;
-
 using WebActivatorEx;
+using System.Web.Mvc;
+using Microsoft.Web.Infrastructure.DynamicModuleHelper;
+using WebApp.DependencyResolution;
+using StructureMap;
 
 [assembly: PreApplicationStartMethod(typeof(StructuremapMvc), "Start")]
 [assembly: ApplicationShutdownMethod(typeof(StructuremapMvc), "End")]
 
-namespace WebApp.App_Start {
-	using System.Web.Mvc;
-
-    using Microsoft.Web.Infrastructure.DynamicModuleHelper;
-
-	using WebApp.DependencyResolution;
-
-    using StructureMap;
-    
-	public static class StructuremapMvc {
-        #region Public Properties
-
+namespace WebApp.App_Start
+{
+    public static class StructuremapMvc
+    {
         public static StructureMapDependencyScope StructureMapDependencyScope { get; set; }
 
-        #endregion
-		
-		#region Public Methods and Operators
-		
-		public static void End() {
+        public static void End()
+        {
             StructureMapDependencyScope.Dispose();
         }
-		
-        public static void Start() {
-            IContainer container = IoC.Initialize();
+
+        public static void Start()
+        {
+            IContainer container = new Container(c => c.Scan(scan =>
+            {
+                scan.TheCallingAssembly();
+                scan.WithDefaultConventions();
+                scan.LookForRegistries();
+            }));
             StructureMapDependencyScope = new StructureMapDependencyScope(container);
             DependencyResolver.SetResolver(StructureMapDependencyScope);
             DynamicModuleUtility.RegisterModule(typeof(StructureMapScopeModule));
         }
-
-        #endregion
     }
 }

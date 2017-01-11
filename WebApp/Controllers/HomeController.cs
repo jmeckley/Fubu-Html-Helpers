@@ -7,11 +7,11 @@ namespace WebApp.Controllers
     {
         public ActionResult Index()
         {
-            object errors = null;
+            object errors;
             TempData.TryGetValue("errors", out errors);
             ModelState.Merge(errors as ModelStateDictionary);
 
-            object model = null;
+            object model;
             TempData.TryGetValue("model", out model);
 
             return View(model as LoginViewModel ?? new LoginViewModel());
