@@ -51,6 +51,14 @@
       <HintPath>..\packages\Bottles.2.2.0.610\lib\Bottles.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="FluentValidation, Version=6.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentValidation.6.2.1.0\lib\Net45\FluentValidation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FluentValidation.Mvc, Version=6.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentValidation.MVC5.6.2.1.0\lib\Net45\FluentValidation.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FubuCore, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FubuCore.2.0.1.321\lib\FubuCore.dll</HintPath>
       <Private>True</Private>
@@ -183,11 +191,8 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="DependencyResolution\FubuHtmlTagsRegistry.cs" />
-    <Compile Include="DependencyResolution\FubuRegistry.cs" />
     <Compile Include="DependencyResolution\StructureMapDependencyScope.cs" />
     <Compile Include="DependencyResolution\StructureMapScopeModule.cs" />
-    <Compile Include="DependencyResolution\StructureMapServiceLocator.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -250,6 +255,10 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FubuHtmlHelpers.StructureMap\FubuHtmlHelpers.StructureMap.csproj">
+      <Project>{c070608f-ad0e-427e-9666-c7624d26d6ae}</Project>
+      <Name>FubuHtmlHelpers.StructureMap</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FubuHtmlHelpers\FubuHtmlHelpers.csproj">
       <Project>{900a0415-9055-41b8-be2b-fcd949f0a688}</Project>
       <Name>FubuHtmlHelpers</Name>

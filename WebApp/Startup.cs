@@ -1,4 +1,8 @@
 ﻿using System.Web.Mvc;
+using System.Web.Optimization;
+using System.Web.Routing;
+using FluentValidation.Mvc;
+using FubuHtmlHelpers.StructureMap;
 using Microsoft.Owin;
 using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 using Owin;
@@ -25,12 +29,19 @@ namespace WebApp
             var container = new Container(c => c.Scan(scan =>
             {
                 scan.TheCallingAssembly();
+                scan.AssemblyContainingType<FubuHtmlTagsRegistry>();
                 scan.WithDefaultConventions();
                 scan.LookForRegistries();
             }));
 
             StructureMapDependencyScope = new StructureMapDependencyScope(container);
             DependencyResolver.SetResolver(StructureMapDependencyScope);
+
+            AreaRegistration.RegisterAllAreas();
+            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
+            RouteConfig.RegisterRoutes(RouteTable.Routes);
+            BundleConfig.RegisterBundles(BundleTable.Bundles);
+            FluentValidationModelValidatorProvider.Configure();
         }
 
         public static void Start()

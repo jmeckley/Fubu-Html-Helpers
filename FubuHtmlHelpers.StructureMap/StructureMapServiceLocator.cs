@@ -1,7 +1,7 @@
 ﻿using FubuCore;
 using StructureMap;
 
-namespace WebApp.DependencyResolution
+namespace FubuHtmlHelpers.StructureMap
 {
     public class StructureMapServiceLocator : IServiceLocator
     {

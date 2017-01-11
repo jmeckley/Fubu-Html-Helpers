@@ -2,10 +2,10 @@
 using FubuCore.Binding.InMemory;
 using FubuMVC.Core.Runtime;
 using FubuMVC.Core.UI.Security;
-using StructureMap;
 using HtmlTags.Conventions;
+using StructureMap;
 
-namespace WebApp.DependencyResolution
+namespace FubuHtmlHelpers.StructureMap
 {
     public class FubuRegistry 
         : Registry

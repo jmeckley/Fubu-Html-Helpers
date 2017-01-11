@@ -1,4 +1,5 @@
 ﻿@using FubuHtmlHelpers;
+@using WebApp.Controllers
 
 @model WebApp.Models.LoginViewModel
 
@@ -13,5 +14,7 @@
     @Html.FormBlock(m => m.Email)
     @Html.FormBlock(m => m.Password)
     @Html.FormBlock(m => m.ConfirmPassword)
-    @Html.SubmitBlock()
+    @Html.FormBlock(m => m.AreYouIn)
+    @Html.FormBlock(m => m.YesOrNo)
+    @Html.ActionBlock(Html.Submit(), Html.Reset<HomeController>(x => x.Index()))
 }
