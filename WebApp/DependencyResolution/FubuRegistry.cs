@@ -2,7 +2,7 @@
 using FubuCore.Binding.InMemory;
 using FubuMVC.Core.Runtime;
 using FubuMVC.Core.UI.Security;
-using StructureMap.Configuration.DSL;
+using StructureMap;
 using HtmlTags.Conventions;
 
 namespace WebApp.DependencyResolution

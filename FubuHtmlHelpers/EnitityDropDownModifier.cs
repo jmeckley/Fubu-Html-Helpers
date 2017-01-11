@@ -4,7 +4,6 @@ using System.Linq;
 using FubuMVC.Core.UI;
 using FubuMVC.Core.UI.Elements;
 using HtmlTags;
-using HtmlTags.Conventions;
 
 namespace FubuHtmlHelpers
 {

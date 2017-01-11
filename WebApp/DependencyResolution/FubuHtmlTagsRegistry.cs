@@ -1,12 +1,12 @@
 ﻿using System.Web;
 using FubuCore;
 using FubuCore.Binding.Values;
-using FubuMVC.Core.Http.AspNet;
 using FubuMVC.Core.UI;
 using FubuMVC.Core.UI.Elements;
-using StructureMap.Configuration.DSL;
 using FubuHtmlHelpers;
+using FubuMVC.Core.Http.AspNet;
 using HtmlTags.Conventions;
+using StructureMap;
 
 namespace WebApp.DependencyResolution
 {
@@ -20,7 +20,7 @@ namespace WebApp.DependencyResolution
 
             htmlConventionLibrary.Import(conventions.Library);
             For<HtmlConventionLibrary>().Use(htmlConventionLibrary);
-
+            
             For<IValueSource>().AddInstances(c =>
             {
                 c.Type<RequestPropertyValueSource>();

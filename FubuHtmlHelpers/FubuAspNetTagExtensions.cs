@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using System.Web.Routing;
@@ -56,7 +57,7 @@ namespace FubuHtmlHelpers
             return generator.LabelFor(expression, model: helper.ViewData.Model);
         }
 
-        public static HtmlTag QueryDropDown<T, TItem, TQuery>(this HtmlHelper<T> htmlHelper, Expression<Func<T, TItem>> expression, TQuery query, Func<TItem, string> displaySelector, Func<TItem, object> valueSelector)
+        public static async Task<HtmlTag> QueryDropDown<T, TItem, TQuery>(this HtmlHelper<T> htmlHelper, Expression<Func<T, TItem>> expression, TQuery query, Func<TItem, string> displaySelector, Func<TItem, object> valueSelector)
             where TQuery : IRequest<IEnumerable<TItem>>
         {
             var expressionText = ExpressionHelper.GetExpressionText(expression);
@@ -64,7 +65,7 @@ namespace FubuHtmlHelpers
             var selectedItem = (TItem)metadata.Model;
 
             var mediator = DependencyResolver.Current.GetService<IMediator>();
-            var items = mediator.Send(query);
+            var items = await mediator.Send(query);
             var select = new SelectTag(t =>
             {
                 t.Option("", string.Empty);
@@ -76,8 +77,7 @@ namespace FubuHtmlHelpers
                     htmlTag.Attr("selected");
                 }
 
-                t.Id(expressionText);
-                t.Attr("name", expressionText);
+                t.Id(expressionText).Attr("name", expressionText);
             });
 
             return select;
