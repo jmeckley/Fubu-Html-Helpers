@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Web.Mvc;
 using HtmlTags;
@@ -60,6 +60,18 @@ namespace FubuHtmlHelpers
 
             return divTag;
         }
+
+        public static HtmlTag ActionBlock(this HtmlHelper helper, params HtmlTag[] tags)
+        {
+            var divTag = new HtmlTag("div").AddClass("form-group");
+            var columnTag = new HtmlTag("div").AddClasses("col-md-offset-2", "col-md-10");
+
+            tags.Each(tag => columnTag.Append(tag));
+            divTag.Append(columnTag);
+
+            return divTag;
+        }
+
 
         public static HtmlTag ValidationSummaryBlock(this HtmlHelper helper, string message = "")
         {

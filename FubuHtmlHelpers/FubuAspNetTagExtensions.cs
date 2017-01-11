@@ -27,7 +27,7 @@ namespace FubuHtmlHelpers
         public static HtmlTag ButtonLink<TController>(this HtmlHelper helper, Expression<Action<TController>> action, string linkText)
             where TController : Controller
         {
-            return helper.Link(action, linkText).AddClass("btn");
+            return helper.Link(action, linkText).AddClass("btn").Attr("role", "button");
         }
 
         public static HtmlTag Input<T>(this HtmlHelper<T> helper,
@@ -86,7 +86,7 @@ namespace FubuHtmlHelpers
         public static HtmlTag Validator<T>(this HtmlHelper<T> helper, Expression<Func<T, object>> expression) where T : class
         {
             // MVC code don't ask me I just copied
-            var expressionText = ExpressionHelper.GetExpressionText(expression);
+            var expressionText = GetExpressionText(expression);
             string fullHtmlFieldName = helper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(expressionText);
 
             if (!helper.ViewData.ModelState.ContainsKey(fullHtmlFieldName))
@@ -95,7 +95,7 @@ namespace FubuHtmlHelpers
             }
 
             var  modelState = helper.ViewData.ModelState[fullHtmlFieldName];
-            var  modelErrorCollection = modelState == null ? null : modelState.Errors;
+            var  modelErrorCollection = modelState?.Errors;
             var  error = modelErrorCollection == null || modelErrorCollection.Any() == false ? null : modelErrorCollection.FirstOrDefault(m => string.IsNullOrEmpty(m.ErrorMessage) == false) ?? modelErrorCollection[0];
             if (error == null)
             {
@@ -122,6 +122,12 @@ namespace FubuHtmlHelpers
             return new HtmlTag("input").Attr("type", "submit").Attr("value", text).AddClasses("btn", "btn-primary");
         }
 
+        public static HtmlTag Reset<TController>(this HtmlHelper helper, Expression<Action<TController>> action, string text = "Reset")
+            where TController : Controller
+        {
+            return helper.ButtonLink(action, text).AddClasses("btn-default");
+        }
+
         public static MvcHtmlString ValidationErrorsSummary(this HtmlHelper helper, string message = "")
         {
             return helper.ValidationSummary(message, new { @class = "text-danger" });
@@ -131,6 +137,18 @@ namespace FubuHtmlHelpers
         {
             var generator = DependencyResolver.Current.GetService<IElementGenerator<T>>();
             return generator;
+        }
+
+        public static string GetExpressionText<TModel>(Expression<Func<TModel, object>> expression)
+        {
+            var expr = (LambdaExpression) expression;
+            if (expr.Body.NodeType == ExpressionType.Convert)
+            {
+                var ue = expr.Body as UnaryExpression;
+                var me = ue?.Operand as MemberExpression;
+                return me?.Member.Name;
+            }
+            return ExpressionHelper.GetExpressionText(expr);
         }
     }
 }
