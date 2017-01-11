@@ -22,6 +22,7 @@ namespace FubuHtmlHelpers
         private void Html5()
         {
             Editors.Modifier<EnumDropDownModifier>();
+            Editors.Modifier<NullableEnumDropDownModifier>();
             Editors.Modifier<EnitityDropDownModifier>();
             Editors.IfPropertyIs<bool>().Attr("type", "checkbox");
             Editors.IfPropertyIs<Color>().Attr("type", "color");

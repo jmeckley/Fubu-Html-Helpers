@@ -136,6 +136,7 @@
     <Compile Include="EnumDropDownModifier.cs" />
     <Compile Include="FubuAspNetBlockExtensions.cs" />
     <Compile Include="FubuAspNetTagExtensions.cs" />
+    <Compile Include="NullableEnumDropDownModifier.cs" />
     <Compile Include="OverrideHtmlConventions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpanValidatorBuilder.cs" />

@@ -2,20 +2,20 @@
 using FubuMVC.Core.UI;
 using FubuMVC.Core.UI.Elements;
 using HtmlTags;
-using HtmlTags.Conventions;
 
 namespace FubuHtmlHelpers
 {
-    public class EnumDropDownModifier : IElementModifier
+    public class EnumDropDownModifier 
+        : IElementModifier
     {
-        public bool Matches(ElementRequest token)
+        public virtual bool Matches(ElementRequest token)
         {
             return token.Accessor.PropertyType.IsEnum;
         }
 
         public void Modify(ElementRequest request)
         {
-            var enumType = request.Accessor.PropertyType;
+            var enumType = GetEnumType(request);
 
             request.CurrentTag.RemoveAttr("type");
             request.CurrentTag.TagName("select");
@@ -25,6 +25,11 @@ namespace FubuHtmlHelpers
                 var optionTag = new HtmlTag("option").Value(value.ToString()).Text(Enum.GetName(enumType, value));
                 request.CurrentTag.Append(optionTag);
             }
+        }
+
+        protected virtual Type GetEnumType(ElementRequest request)
+        {
+            return request.Accessor.PropertyType;
         }
     }
 }
