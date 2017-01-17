@@ -23,6 +23,10 @@ namespace FubuHtmlHelpers
             foreach (var value in Enum.GetValues(enumType))
             {
                 var optionTag = new HtmlTag("option").Value(value.ToString()).Text(Enum.GetName(enumType, value));
+                if (value.ToString() == request.RawValue?.ToString())
+                {
+                    optionTag.Attr("selected", true);
+                }
                 request.CurrentTag.Append(optionTag);
             }
         }

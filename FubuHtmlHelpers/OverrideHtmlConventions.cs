@@ -24,7 +24,7 @@ namespace FubuHtmlHelpers
             Editors.Modifier<EnumDropDownModifier>();
             Editors.Modifier<NullableEnumDropDownModifier>();
             Editors.Modifier<EnitityDropDownModifier>();
-            Editors.IfPropertyIs<bool>().Attr("type", "checkbox");
+            Editors.IfPropertyIs<bool>().ModifyWith(m => m.CurrentTag.Attr("type", "checkbox").Attr("value", "true"));
             Editors.IfPropertyIs<Color>().Attr("type", "color");
             Editors.IfPropertyIs<LocalDate>().Attr("type", "date");
             Editors.IfPropertyIs<LocalTime>().Attr("type", "time");
@@ -34,7 +34,10 @@ namespace FubuHtmlHelpers
             Editors.IfPropertyIs<Guid>().Attr("type", "hidden");
             Editors.IfPropertyIs<Guid?>().Attr("type", "hidden");
             Editors.IfPropertyHasAttribute<HiddenInputAttribute>().Attr("type", "hidden");
-            Editors.IfPropertyIs<decimal?>().ModifyWith(m => m.CurrentTag.Data("pattern", "9{1,9}.99").Data("placeholder", "0.00"));
+            Editors.IfPropertyIs<decimal?>().ModifyWith(m => m.CurrentTag.Data("pattern", "9{1,9}.99").Data("placeholder", "0.00").Attr("type", "number"));
+            Editors.IfPropertyIs<decimal>().ModifyWith(m => m.CurrentTag.Data("pattern", "9{1,9}.99").Data("placeholder", "0.00").Attr("type", "number"));
+            Editors.IfPropertyIs<int?>().ModifyWith(m => m.CurrentTag.Data("pattern", "9{1,9}").Data("placeholder", "0").Attr("type", "number"));
+            Editors.IfPropertyIs<int>().ModifyWith(m => m.CurrentTag.Data("pattern", "9{1,9}").Data("placeholder", "0").Attr("type", "number"));
 
             Editors.If(er => er.Accessor.Name.Contains("Password")).Attr("type", "password");
             Editors.If(er =>

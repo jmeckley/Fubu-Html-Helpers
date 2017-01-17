@@ -21,19 +21,17 @@ namespace FubuHtmlHelpers
             request.CurrentTag.Append(new HtmlTag("option"));
 
             var context = request.Get<DbContext>();
-            var entities = context.Set(request.Accessor.PropertyType)
-                .Cast<Entity>()
-                .ToList();
+            var entities = context.Set(request.Accessor.PropertyType).Cast<Entity>().ToList();
             var value = request.Value<Entity>();
 
             foreach (var entity in entities)
             {
-                var optionTag = new HtmlTag("option")
-                    .Value(entity.Id.ToString())
-                    .Text(entity.DisplayValue);
+                var optionTag = new HtmlTag("option").Value(entity.Id.ToString()).Text(entity.DisplayValue);
 
-                if (value != null && value.Id == entity.Id)
+                if (value?.Id == entity.Id)
+                {
                     optionTag.Attr("selected");
+                }
 
                 request.CurrentTag.Append(optionTag);
             }

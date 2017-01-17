@@ -7,6 +7,7 @@ using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using System.Web.Routing;
 using FubuCore.Reflection;
+using FubuMVC.Core.UI;
 using FubuMVC.Core.UI.Elements;
 using HtmlTags;
 using HtmlTags.Conventions;
@@ -30,17 +31,15 @@ namespace FubuHtmlHelpers
             return helper.Link(action, linkText).AddClass("btn").Attr("role", "button");
         }
 
-        public static HtmlTag Input<T>(this HtmlHelper<T> helper,
-            Expression<Func<T, object>> expression)
+        public static HtmlTag Input<T>(this HtmlHelper<T> helper, Expression<Func<T, object>> expression)
             where T : class
         {
             var generator = GetGenerator<T>();
 
-            return generator.InputFor(expression, model: helper.ViewData.Model);
+            return generator.InputFor(expression, model: helper.ViewData.Model).Id(helper.ClientIdFor(expression));
         }
 
-        public static HtmlTag Display<T>(this HtmlHelper<T> helper,
-            Expression<Func<T, object>> expression)
+        public static HtmlTag Display<T>(this HtmlHelper<T> helper, Expression<Func<T, object>> expression)
             where T : class
         {
             var generator = GetGenerator<T>();
@@ -48,13 +47,12 @@ namespace FubuHtmlHelpers
             return generator.DisplayFor(expression, model: helper.ViewData.Model);
         }
 
-        public static HtmlTag Label<T>(this HtmlHelper<T> helper,
-            Expression<Func<T, object>> expression)
+        public static HtmlTag Label<T>(this HtmlHelper<T> helper, Expression<Func<T, object>> expression)
             where T : class
         {
             var generator = GetGenerator<T>();
 
-            return generator.LabelFor(expression, model: helper.ViewData.Model);
+            return generator.LabelFor(expression, model: helper.ViewData.Model).Attr("for", helper.ClientIdFor(expression));
         }
 
         public static async Task<HtmlTag> QueryDropDown<T, TItem, TQuery>(this HtmlHelper<T> htmlHelper, Expression<Func<T, TItem>> expression, TQuery query, Func<TItem, string> displaySelector, Func<TItem, object> valueSelector)
@@ -81,6 +79,23 @@ namespace FubuHtmlHelpers
             });
 
             return select;
+        }
+
+        public static void ConvertToDropDown<TItem, TQuery>(this HtmlTag tag, TItem value, IEnumerable<TQuery> items, Func<TQuery, string> displaySelector = null, Func<TQuery, string> valueSelector = null)
+        {
+            displaySelector = displaySelector ?? (_ => _.ToString());
+            valueSelector = valueSelector ?? (_ => _.ToString());
+
+            tag.RemoveAttr("type").TagName("select").Append(new HtmlTag("option"));
+            foreach (var item in items)
+            {
+                var option = new HtmlTag("option").Text(displaySelector(item)).Value(valueSelector(item));
+                if (valueSelector(item).Equals(value))
+                {
+                    option.Attr("selected");
+                }
+                tag.Append(option);
+            }
         }
 
         public static HtmlTag Validator<T>(this HtmlHelper<T> helper, Expression<Func<T, object>> expression) where T : class
@@ -117,6 +132,12 @@ namespace FubuHtmlHelpers
             return tag;
         }
 
+        public static string ClientIdFor<T>(this HtmlHelper<T> helper, Expression<Func<T, object>> expression)
+            where T : class
+        {
+            return GetExpressionText(expression).Replace('.', '_').Replace('[', '_').Replace(']', '_');
+        }
+
         public static HtmlTag Submit(this HtmlHelper helper, string text = "Submit")
         {
             return new HtmlTag("input").Attr("type", "submit").Attr("value", text).AddClasses("btn", "btn-primary");
@@ -135,20 +156,18 @@ namespace FubuHtmlHelpers
 
         private static IElementGenerator<T> GetGenerator<T>() where T : class
         {
-            var generator = DependencyResolver.Current.GetService<IElementGenerator<T>>();
-            return generator;
+            return DependencyResolver.Current.GetService<IElementGenerator<T>>();
         }
 
-        public static string GetExpressionText<TModel>(Expression<Func<TModel, object>> expression)
+        private static string GetExpressionText<T>(Expression<Func<T, object>> expression)
+            where T : class
         {
-            var expr = (LambdaExpression) expression;
-            if (expr.Body.NodeType == ExpressionType.Convert)
+            if (expression.Body.NodeType == ExpressionType.Convert || expression.Body.NodeType == ExpressionType.ConvertChecked)
             {
-                var ue = expr.Body as UnaryExpression;
-                var me = ue?.Operand as MemberExpression;
-                return me?.Member.Name;
+                var lambda = Expression.Lambda(((UnaryExpression)expression.Body).Operand, expression.Parameters);
+                return ExpressionHelper.GetExpressionText(lambda);
             }
-            return ExpressionHelper.GetExpressionText(expr);
+            return ExpressionHelper.GetExpressionText(expression);
         }
     }
 }
