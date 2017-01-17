@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Linq;
+using System.Web;
 using FubuCore;
 using FubuCore.Binding.Values;
 using FubuMVC.Core.Http.AspNet;
@@ -14,12 +15,9 @@ namespace FubuHtmlHelpers.StructureMap
     {
         public FubuHtmlTagsRegistry()
         {
-            var htmlConventionLibrary = new HtmlConventionLibrary();
-            htmlConventionLibrary.Import(new DefaultHtmlConventions().Library);
-            var conventions = new OverrideHtmlConventions();
-
-            htmlConventionLibrary.Import(conventions.Library);
-            For<HtmlConventionLibrary>().Use(htmlConventionLibrary);
+            For<DefaultHtmlConventions>().Use(new DefaultHtmlConventions());
+            For<DefaultHtmlConventions>().Use(new OverrideHtmlConventions());
+            For<HtmlConventionLibrary>().Singleton().Use(ctx => BuildLibrary(ctx));
             
             For<IValueSource>().AddInstances(c => c.Type<RequestPropertyValueSource>());
             For<ITagRequestActivator>().AddInstances(c =>
@@ -37,6 +35,17 @@ namespace FubuHtmlHelpers.StructureMap
             For<IElementNamingConvention>().Use<DotNotationElementNamingConvention>();
             For(typeof(ITagGenerator<>)).Use(typeof(TagGenerator<>));
             For(typeof(IElementGenerator<>)).Use(typeof(ElementGenerator<>));
+        }
+
+        private HtmlConventionLibrary BuildLibrary(IContext context)
+        {
+            return context
+                .GetAllInstances<DefaultHtmlConventions>()
+                .Aggregate(new HtmlConventionLibrary(), (library, convention) =>
+                {
+                    library.Import(convention.Library);
+                    return library;
+                });
         }
     }
 }
