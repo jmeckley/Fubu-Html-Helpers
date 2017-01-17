@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Web.Mvc;
 using HtmlTags;
@@ -37,6 +38,10 @@ namespace FubuHtmlHelpers
 
             var divTag = new HtmlTag("div");
             divTag.AddClass("form-group");
+            if (helper.GetErrors(expression).Any())
+            {
+                divTag.AddClass("has-error");
+            }
 
             var labelTag = helper.Label(expression);
             labelModifier(labelTag);
