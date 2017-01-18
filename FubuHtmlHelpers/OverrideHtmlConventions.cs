@@ -2,9 +2,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Web.Mvc;
-using FubuCore.Reflection;
-using FubuMVC.Core.UI;
-using FubuMVC.Core.UI.Elements;
+using HtmlTags.Conventions;
+using HtmlTags.Reflection;
 using NodaTime;
 
 namespace FubuHtmlHelpers
@@ -74,7 +73,7 @@ namespace FubuHtmlHelpers
         {
             get
             {
-                var builderSet = Library.For<ElementRequest>().Category("Validator").Defaults;
+                var builderSet = Library.TagLibrary.Category("Validator").Defaults;
                 return new ElementCategoryExpression(builderSet);
             }
         }

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Data.Entity;
 using System.Linq;
-using FubuMVC.Core.UI;
-using FubuMVC.Core.UI.Elements;
 using HtmlTags;
+using HtmlTags.Conventions;
+using HtmlTags.Conventions.Elements;
 
 namespace FubuHtmlHelpers
 {

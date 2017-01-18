@@ -1,5 +1,5 @@
 using System;
-using FubuMVC.Core.UI.Elements;
+using HtmlTags.Conventions;
 
 namespace FubuHtmlHelpers
 {

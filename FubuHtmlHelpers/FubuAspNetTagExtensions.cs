@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using System.Web.Routing;
-using FubuCore.Reflection;
-using FubuMVC.Core.UI;
-using FubuMVC.Core.UI.Elements;
 using HtmlTags;
 using HtmlTags.Conventions;
+using HtmlTags.Conventions.Elements;
+using HtmlTags.Reflection;
 using MediatR;
 using Microsoft.Web.Mvc;
 
@@ -35,8 +34,9 @@ namespace FubuHtmlHelpers
             where T : class
         {
             var generator = GetGenerator<T>();
+            var clienId = helper.ClientIdFor(expression);
 
-            return generator.InputFor(expression, model: helper.ViewData.Model).Id(helper.ClientIdFor(expression));
+            return generator.InputFor(expression, model: helper.ViewData.Model).Id(clienId);
         }
 
         public static HtmlTag Display<T>(this HtmlHelper<T> helper, Expression<Func<T, object>> expression)
@@ -51,8 +51,9 @@ namespace FubuHtmlHelpers
             where T : class
         {
             var generator = GetGenerator<T>();
+            var clientId = helper.ClientIdFor(expression);
 
-            return generator.LabelFor(expression, model: helper.ViewData.Model).Attr("for", helper.ClientIdFor(expression));
+            return generator.LabelFor(expression, model: helper.ViewData.Model).Attr("for", clientId);
         }
 
         public static async Task<HtmlTag> QueryDropDown<T, TItem, TQuery>(this HtmlHelper<T> htmlHelper, Expression<Func<T, TItem>> expression, TQuery query, Func<TItem, string> displaySelector, Func<TItem, object> valueSelector)
@@ -62,7 +63,7 @@ namespace FubuHtmlHelpers
             var metadata = ModelMetadata.FromLambdaExpression(expression, htmlHelper.ViewData);
             var selectedItem = (TItem)metadata.Model;
 
-            var mediator = DependencyResolver.Current.GetService<IMediator>();
+            var mediator = Get<IMediator>();
             var items = await mediator.Send(query);
             var select = new SelectTag(t =>
             {
@@ -100,36 +101,26 @@ namespace FubuHtmlHelpers
 
         public static HtmlTag Validator<T>(this HtmlHelper<T> helper, Expression<Func<T, object>> expression) where T : class
         {
+            var error = helper.GetErrors(expression);
+            if (error.Any() == false) return new NoTag();
+
+            var errorMessage = error.FirstOrDefault()?.ErrorMessage;
+            if(string.IsNullOrEmpty(errorMessage)) return new NoTag();
+
+            var request = new ElementRequest(expression.ToAccessor()) {Model = helper.ViewData.Model};
+
+            return GetGenerator<T>().TagFor(request, "Validator").Text(errorMessage);
+        }
+
+        public static ModelErrorCollection GetErrors<T>(this HtmlHelper<T> helper, Expression<Func<T, object>> expression) where T : class
+        {
             // MVC code don't ask me I just copied
             var expressionText = GetExpressionText(expression);
-            string fullHtmlFieldName = helper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(expressionText);
+            var fullHtmlFieldName = helper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(expressionText);
+            var modelStateDictionary = helper.ViewData.ModelState;
+            if (modelStateDictionary.ContainsKey(fullHtmlFieldName) == false) return new ModelErrorCollection();
 
-            if (!helper.ViewData.ModelState.ContainsKey(fullHtmlFieldName))
-            {
-                return new NoTag();
-            }
-
-            var  modelState = helper.ViewData.ModelState[fullHtmlFieldName];
-            var  modelErrorCollection = modelState?.Errors;
-            var  error = modelErrorCollection == null || modelErrorCollection.Any() == false ? null : modelErrorCollection.FirstOrDefault(m => string.IsNullOrEmpty(m.ErrorMessage) == false) ?? modelErrorCollection[0];
-            if (error == null)
-            {
-                return new NoTag();
-            }
-            // End of MVC code
-
-            var tagGeneratorFactory = DependencyResolver.Current.GetService<ITagGeneratorFactory>();
-            var tagGenerator = tagGeneratorFactory.GeneratorFor<ElementRequest>();
-            var request = new ElementRequest(expression.ToAccessor())
-            {
-                Model = helper.ViewData.Model
-            };
-
-            var tag = tagGenerator.Build(request, "Validator");
-
-            tag.Text(error.ErrorMessage);
-
-            return tag;
+            return  modelStateDictionary[fullHtmlFieldName]?.Errors ?? new ModelErrorCollection();
         }
 
         public static string ClientIdFor<T>(this HtmlHelper<T> helper, Expression<Func<T, object>> expression)
@@ -154,9 +145,14 @@ namespace FubuHtmlHelpers
             return helper.ValidationSummary(message, new { @class = "text-danger" });
         }
 
+        private static T Get<T>()
+        {
+            return DependencyResolver.Current.GetService<T>();
+        }
+
         private static IElementGenerator<T> GetGenerator<T>() where T : class
         {
-            return DependencyResolver.Current.GetService<IElementGenerator<T>>();
+            return Get<HtmlConventionLibrary>().GeneratorFor<T>();
         }
 
         private static string GetExpressionText<T>(Expression<Func<T, object>> expression)

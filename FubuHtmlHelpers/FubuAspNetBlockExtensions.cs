@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Web.Mvc;
 using HtmlTags;
@@ -37,6 +38,10 @@ namespace FubuHtmlHelpers
 
             var divTag = new HtmlTag("div");
             divTag.AddClass("form-group");
+            if (helper.GetErrors(expression).Any())
+            {
+                divTag.AddClass("has-error");
+            }
 
             var labelTag = helper.Label(expression);
             labelModifier(labelTag);
@@ -66,7 +71,7 @@ namespace FubuHtmlHelpers
             var divTag = new HtmlTag("div").AddClass("form-group");
             var columnTag = new HtmlTag("div").AddClasses("col-md-offset-2", "col-md-10");
 
-            tags.Each(tag => columnTag.Append(tag));
+            Array.ForEach(tags, tag => columnTag.Append(tag));
             divTag.Append(columnTag);
 
             return divTag;
