@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using System.Web.Routing;
-using FubuCore.Reflection;
-using FubuMVC.Core.UI;
-using FubuMVC.Core.UI.Elements;
 using HtmlTags;
 using HtmlTags.Conventions;
+using HtmlTags.Conventions.Elements;
+using HtmlTags.Reflection;
 using MediatR;
 using Microsoft.Web.Mvc;
 
@@ -35,8 +34,9 @@ namespace FubuHtmlHelpers
             where T : class
         {
             var generator = GetGenerator<T>();
+            var clienId = helper.ClientIdFor(expression);
 
-            return generator.InputFor(expression, model: helper.ViewData.Model).Id(helper.ClientIdFor(expression));
+            return generator.InputFor(expression, model: helper.ViewData.Model).Id(clienId);
         }
 
         public static HtmlTag Display<T>(this HtmlHelper<T> helper, Expression<Func<T, object>> expression)
@@ -51,8 +51,9 @@ namespace FubuHtmlHelpers
             where T : class
         {
             var generator = GetGenerator<T>();
+            var clientId = helper.ClientIdFor(expression);
 
-            return generator.LabelFor(expression, model: helper.ViewData.Model).Attr("for", helper.ClientIdFor(expression));
+            return generator.LabelFor(expression, model: helper.ViewData.Model).Attr("for", clientId);
         }
 
         public static async Task<HtmlTag> QueryDropDown<T, TItem, TQuery>(this HtmlHelper<T> htmlHelper, Expression<Func<T, TItem>> expression, TQuery query, Func<TItem, string> displaySelector, Func<TItem, object> valueSelector)
@@ -106,11 +107,9 @@ namespace FubuHtmlHelpers
             var errorMessage = error.FirstOrDefault()?.ErrorMessage;
             if(string.IsNullOrEmpty(errorMessage)) return new NoTag();
 
-            var tagGeneratorFactory = Get<ITagGeneratorFactory>();
-            var tagGenerator = tagGeneratorFactory.GeneratorFor<ElementRequest>();
             var request = new ElementRequest(expression.ToAccessor()) {Model = helper.ViewData.Model};
 
-            return tagGenerator.Build(request, "Validator").Text(errorMessage);
+            return GetGenerator<T>().TagFor(request, "Validator").Text(errorMessage);
         }
 
         public static ModelErrorCollection GetErrors<T>(this HtmlHelper<T> helper, Expression<Func<T, object>> expression) where T : class
@@ -153,7 +152,7 @@ namespace FubuHtmlHelpers
 
         private static IElementGenerator<T> GetGenerator<T>() where T : class
         {
-            return Get<IElementGenerator<T>>();
+            return Get<HtmlConventionLibrary>().GeneratorFor<T>();
         }
 
         private static string GetExpressionText<T>(Expression<Func<T, object>> expression)

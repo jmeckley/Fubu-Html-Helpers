@@ -1,6 +1,6 @@
 ﻿using System;
-using FubuCore.Reflection;
-using FubuMVC.Core.UI;
+using HtmlTags.Conventions;
+using HtmlTags.Reflection;
 
 namespace FubuHtmlHelpers
 {

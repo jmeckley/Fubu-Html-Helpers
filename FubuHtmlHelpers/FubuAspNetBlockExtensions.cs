@@ -71,7 +71,7 @@ namespace FubuHtmlHelpers
             var divTag = new HtmlTag("div").AddClass("form-group");
             var columnTag = new HtmlTag("div").AddClasses("col-md-offset-2", "col-md-10");
 
-            tags.Each(tag => columnTag.Append(tag));
+            Array.ForEach(tags, tag => columnTag.Append(tag));
             divTag.Append(columnTag);
 
             return divTag;
